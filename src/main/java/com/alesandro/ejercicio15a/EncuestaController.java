@@ -41,6 +41,21 @@ public class EncuestaController {
     private TextField txtHermanos; // Value injected by FXMLLoader
 
     /**
+     * Función que escucha al cambio del checkbox
+     *
+     * @param event
+     */
+    @FXML
+    void cbCambio(ActionEvent event) {
+        boolean estado = cbPractica.isSelected();
+        if (estado) {
+            lvDeportes.setEditable(true);
+        } else {
+            lvDeportes.setEditable(false);
+        }
+    }
+
+    /**
      * Función que procesa los datos cuándo se pulsa el botón "Aceptar"
      *
      * @param event
