@@ -1,18 +1,9 @@
 package com.alesandro.ejercicio15a;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -20,13 +11,13 @@ import java.util.ResourceBundle;
 /**
  * Clase que controla
  */
-public class EncuestaController implements Initializable {
+public class EncuestaController {
     @FXML // fx:id="cbPractica"
     private CheckBox cbPractica; // Value injected by FXMLLoader
     @FXML // fx:id="cmbEdad"
     private ComboBox<String> cmbEdad; // Value injected by FXMLLoader
     @FXML // fx:id="lvDeportes"
-    private ListView<?> lvDeportes; // Value injected by FXMLLoader
+    private ListView<String> lvDeportes; // Value injected by FXMLLoader
     @FXML // fx:id="rbHombre"
     private RadioButton rbHombre; // Value injected by FXMLLoader
     @FXML // fx:id="rbMujer"
@@ -41,22 +32,21 @@ public class EncuestaController implements Initializable {
     private Slider sTelevision; // Value injected by FXMLLoader
     @FXML // fx:id="tgSexo"
     private ToggleGroup tgSexo; // Value injected by FXMLLoader
-    @FXML // fx:id="txrProfesion"
-    private TextField txrProfesion; // Value injected by FXMLLoader
+    @FXML // fx:id="txtProfesion"
+    private TextField txtProfesion; // Value injected by FXMLLoader
     @FXML // fx:id="txtHermanos"
     private TextField txtHermanos; // Value injected by FXMLLoader
 
     /**
      * Función que se ejecuta cuando se inicia la ventana
-     *
-     * @param location
-     * @param resources
      */
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        //ObservableList<String> edades = FXCollections.<String>observableArrayList();
-        //edades.addAll("Menores de 18", "Entre 18 y 30", "Entre 31 y 50", "Entre 51 y 70", "Mayores de 70");
+    public void initialize() {
+        // ComboBox Edades
         cmbEdad.getItems().addAll("Menores de 18", "Entre 18 y 30", "Entre 31 y 50", "Entre 51 y 70", "Mayores de 70");
+        cmbEdad.setValue("Menores de 18");
+        // Lista Deportes
+        lvDeportes.getItems().addAll("Tenis", "Fútbol", "Baloncesto", "Natación", "Ciclismo", "Otro");
+        lvDeportes.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     /**
@@ -65,12 +55,12 @@ public class EncuestaController implements Initializable {
      * @param event
      */
     @FXML
-    void cbCambio(ActionEvent event) {
+    public void cbCambio(ActionEvent event) {
         boolean estado = cbPractica.isSelected();
         if (estado) {
-            lvDeportes.setEditable(true);
+            lvDeportes.setDisable(false);
         } else {
-            lvDeportes.setEditable(false);
+            lvDeportes.setDisable(true);
         }
     }
 
@@ -80,8 +70,85 @@ public class EncuestaController implements Initializable {
      * @param event
      */
     @FXML
-    void aceptar(ActionEvent event) {
+    public void aceptar(ActionEvent event) {
+        String error = "";
+        if (txtProfesion.getText().isEmpty()) {
+            error += "Hay que rellenar el campo profesión";
+        }
+        if (txtHermanos.getText().isEmpty()) {
+            if (!error.isEmpty()) {
+                error += "\n";
+            }
+            error += "Hay que rellenar el campo número de hermanos";
+        } else {
+            try {
+                int nHermanos = Integer.parseInt(txtHermanos.getText());
+            } catch (NumberFormatException e) {
+                if (!error.isEmpty()) {
+                    error += "\n";
+                }
+                error += "El campo número de hermanos tiene que ser numérico";
+            }
+        }
+        if (cbPractica.isSelected()) {
+            if (lvDeportes.getSelectionModel().getSelectedItems().isEmpty()) {
+                if (!error.isEmpty()) {
+                    error += "\n";
+                }
+                error += "Tienes que indicar los deportes que practicas";
+            }
+        }
+        if (!error.isEmpty()) {
+            alerta(error);
+        } else {
+            String confirmacion = "Profesión: " + txtProfesion.getText() + "\n" +
+                    "Nº de hermanos: " + txtHermanos.getText() + "\n" +
+                    "Edad: " + cmbEdad.getSelectionModel().getSelectedItem() + "\n" +
+                    "Sexo: ";
+            if (rbHombre.isSelected()) {
+                confirmacion += "Hombre";
+            } else if (rbMujer.isSelected()) {
+                confirmacion += "Mujer";
+            } else {
+                confirmacion += "Otro";
+            }
+            if (cbPractica.isSelected()) {
+                confirmacion += "\nDeportes que practicas:\n";
+                for (String deporte : lvDeportes.getSelectionModel().getSelectedItems()) {
+                    confirmacion += "\t" + deporte + "\n";
+                }
+            }
+            confirmacion += "Grado de afición a las compras: " + sCompras.getValue() + "\n" +
+                    "Grado de afición a ver la televisión: " + sTelevision.getValue() + "\n" +
+                    "Grado de afición a ir al cine: " + sCine.getValue();
+            confirmacion(confirmacion);
+        }
+    }
 
+    /**
+     * Función que muestra un mensaje de alerta al usuario
+     *
+     * @param texto contenido de la alerta
+     */
+    public void alerta(String texto) {
+        Alert alerta = new Alert(Alert.AlertType.ERROR);
+        alerta.setHeaderText(null);
+        alerta.setTitle("TUS DATOS");
+        alerta.setContentText(texto);
+        alerta.showAndWait();
+    }
+
+    /**
+     * Función que muestra un mensaje de confirmación al usuario
+     *
+     * @param texto contenido de la confirmación
+     */
+    public void confirmacion(String texto) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setHeaderText(null);
+        alerta.setTitle("TUS DATOS");
+        alerta.setContentText(texto);
+        alerta.showAndWait();
     }
 
     /**
@@ -90,7 +157,7 @@ public class EncuestaController implements Initializable {
      * @param event
      */
     @FXML
-    void cancelar(ActionEvent event) {
+    public void cancelar(ActionEvent event) {
         Platform.exit();
     }
 

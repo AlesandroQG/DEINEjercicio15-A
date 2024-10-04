@@ -26,6 +26,8 @@ public class EncuestaApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 600, 500);
         stage.setTitle("Encuesta");
         stage.setScene(scene);
+        stage.setMinWidth(525);
+        stage.setMinHeight(400);
         stage.show();
     }
 
