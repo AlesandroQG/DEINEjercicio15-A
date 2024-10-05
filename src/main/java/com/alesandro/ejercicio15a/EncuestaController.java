@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 /**
- * Clase que controla
+ * Clase que controla los eventos de la ventana
  */
 public class EncuestaController {
     @FXML // fx:id="cbPractica"
